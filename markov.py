@@ -1,4 +1,4 @@
-import sys
+from sys import argv
 from random import choice
 
 
@@ -12,11 +12,12 @@ class SimpleMarkovGenerator(object):
             text_string_list.append(file_text)
         
         self.text_string_list = text_string_list
+        self.make_chains() #calling make chains so we don't have to call both separately
 
     def make_chains(self):
         """Takes input text as string list; stores chains."""
         
-        chains ={}
+        chains = {}
         for text_string in self.text_string_list:
             words = text_string.split()
             for i in range(len(words) - 2):
@@ -32,9 +33,13 @@ class SimpleMarkovGenerator(object):
 
     def make_text(self):
         """Takes dictionary of markov chains; returns random text."""
-        
+
         chains = self.chains
+
         key = choice(chains.keys())
+        while not key[0].istitle():
+            key = choice(chains.keys())
+        
         words = [key[0], key[1]]
         while key in chains:
         # Keep looping until we have a key that isn't in the chains
@@ -50,11 +55,14 @@ class SimpleMarkovGenerator(object):
         return " ".join(words)
 
 
-if __name__ == "__main__":
-
+if __name__ == "__main__": # if this .py is the main program running, 
+                           # the code below this point will start automatically
     # we should get list of filenames from sys.argv
     # we should make an instance of the class
     # we should call the read_files method with the list of filenames
     # we should call the make_text method 5x
-
-    pass
+    file_names = argv[1:]
+    markov_machine = SimpleMarkovGenerator()
+    markov_machine.read_files(file_names)
+    for i in range(5):
+        print markov_machine.make_text()
