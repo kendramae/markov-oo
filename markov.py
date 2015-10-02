@@ -31,8 +31,8 @@ class SimpleMarkovGenerator(object):
 
         self.chains = chains
 
-    def make_text(self):
-        """Takes dictionary of markov chains; returns random text."""
+    def make_text_list(self):
+        """Takes dictionary of markov chains; returns random text in a list."""
 
         chains = self.chains
 
@@ -42,6 +42,7 @@ class SimpleMarkovGenerator(object):
         
         words = [key[0], key[1]]
         while key in chains:
+
         # Keep looping until we have a key that isn't in the chains
         # (which would mean it was the end of our original text)
         #
@@ -52,7 +53,60 @@ class SimpleMarkovGenerator(object):
             words.append(word)
             key = (key[1], word)
 
-        return " ".join(words)
+        self.text_list = words
+
+
+    def make_text(self, max_chars=None):
+        """ This calls make_text_list to receive a string of text as a list 
+        and returns string of text at or under max characters
+        ending with punction."""
+
+        self.make_text_list()
+        text_list = self.text_list
+
+        words_to_use = []
+
+        # Controlling for max characters.
+        if max_chars:
+            length_of_text = 0
+            while length_of_text < max_chars:
+                for word in text_list:
+                    length_of_text += len(word) + 1
+                    if length_of_text > max_chars:
+                        break
+                    words_to_use.append(word)
+                break
+        else:
+            words_to_use = text_list
+
+        # Controlling for punctuation.
+        text_to_print = " ".join(words_to_use)
+        x = len(text_to_print) - 1
+        while x > 0:
+            if text_to_print[x] == "?":
+                break
+            elif text_to_print[x] == ".":
+                break
+            elif text_to_print[x] == "'":
+                break
+            elif text_to_print[x] == "!":
+                break
+            elif text_to_print == "\"":
+                break
+            else:
+                x -= 1
+
+        text_to_print = text_to_print[:x+1]
+
+        return text_to_print
+
+
+
+class TweetableMarkovGenerator(SimpleMarkovGenerator):
+        max_chars = 140
+        def tweet(self):
+            return super(TweetableMarkovGenerator, self).make_text(self.max_chars)
+
 
 
 if __name__ == "__main__": # if this .py is the main program running, 
